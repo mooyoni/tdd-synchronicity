@@ -31,4 +31,9 @@ public class PointService {
     public List<PointHistory> selectByUserId(long userId) {
         return pointHistoryTable.selectAllByUserId(userId);
     }
+
+    public UserPoint use(long userId, long amount) {
+        pointHistoryTable.insert(userId, amount, TransactionType.USE, Instant.now().toEpochMilli());
+        return userPointTable.insertOrUpdate(userId, -amount);
+    }
 }

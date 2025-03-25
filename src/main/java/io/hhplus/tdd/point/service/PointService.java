@@ -6,6 +6,7 @@ import io.hhplus.tdd.point.PointHistory;
 import io.hhplus.tdd.point.TransactionType;
 import io.hhplus.tdd.point.UserPoint;
 import io.hhplus.tdd.point.dto.ChargeRequest;
+import io.hhplus.tdd.point.exception.InsufficientPointException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,10 @@ public class PointService {
     }
 
     public UserPoint use(long userId, long amount) {
+        long userPoints = userPointTable.selectById(userId).point();
+        if ( userPoints < amount ) {
+            throw new InsufficientPointException(userPoints, amount);
+        }
         pointHistoryTable.insert(userId, amount, TransactionType.USE, Instant.now().toEpochMilli());
         return userPointTable.insertOrUpdate(userId, -amount);
     }
